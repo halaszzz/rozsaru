@@ -29,8 +29,9 @@
     </div>
     <div class="lerror" id="lerror"></div>
     <div class="fg"><label>Felhasználónév</label><input type="text" id="ln" placeholder="Pl. Nagy János" autocomplete="off"></div>
-    <div class="fg"><label>Jelszó</label><input type="password" id="lb" placeholder="Pl. BV-12345" autocomplete="off"></div>
+    <div class="fg"><label>Jelvényszám</label><input type="password" id="lb" placeholder="Pl. BV-12345" autocomplete="off"></div>
     <button class="bp" id="lbtn" onclick="doLogin()">🔑 Bejelentkezés</button>
+    <button class="bp" type="button" onclick="openM('mreg')" style="margin-top:10px;background:transparent;color:var(--navy);border:1.5px solid rgba(12,29,54,.25);box-shadow:none">📝 Regisztráció</button>
     <p class="lnote">Hozzáférésért fordulj a Fő Adatbázis Ügyintézőhöz.</p>
   </div>
 </div>
@@ -64,6 +65,7 @@
       <div class="sbi" data-page="tanking" onclick="nav('tanking')"><span class="ic">🚗</span> Tankolás-szerelés</div>
       <div class="sbt" id="admt" style="display:none">Adminisztráció</div>
       <div class="sbi" id="noff" data-page="officers" onclick="nav('officers')" style="display:none"><span class="ic">👥</span> Személyügyi-nyilvántartás</div>
+      <div class="sbi" id="nreg" data-page="registrations" onclick="nav('registrations')" style="display:none"><span class="ic">📝</span> Regisztrációk</div>
       <div class="sbi" id="nrob" data-page="roblox" onclick="nav('roblox')" style="display:none"><span class="ic">🎮</span> Roblox-nevek</div>
     </div>
     <div class="cont" id="mc"></div>
@@ -113,7 +115,7 @@
 <div class="moverlay" id="mo"><div class="modal"><div class="mh"><h3 id="mot">RENDŐR HOZZÁADÁSA</h3><button class="mc" onclick="closeM('mo')">✕</button></div>
 <div class="dform">
   <div class="fg"><label>Teljes Név *</label><input type="text" id="on" placeholder="Pl. Kovács Péter"></div>
-  <div class="fg"><label>Jelvényszám *</label><input type="text" id="ob" placeholder="Pl. BV-12345"></div>
+  <div class="fg"><label>Jelszó *</label><input type="text" id="ob" placeholder="Pl. BV-12345"></div>
   <div class="fg"><label>Rendfokozat</label><select id="or"><option>Őrmester</option><option>Törzsőrmester</option><option>Főtörzsőrmester</option><option>Zászlós</option><option>Törzszászlós</option><option>Főtörzszászlós</option><option>Hadnagy</option><option>Főhadnagy</option><option>Százados</option><option>Őrnagy</option><option>Alezredes</option><option>Ezredes</option><option>Dandártábornok</option><option>Vezérőrnagy</option></select></div>
   <div class="fg"><label>Beosztás</label><select id="ob2">
     <option value="">— Válassz —</option>
@@ -172,6 +174,21 @@
   <div style="display:flex;gap:8px;margin-top:8px">
     <button class="btn boutline" style="flex:1" onclick="closeM('mpw')">Mégse</button>
     <button class="btn bgold" style="flex:2" onclick="savePwChange()">✓ Mentés</button>
+  </div>
+</div></div></div>
+
+
+<!-- MODAL: REGISZTRÁCIÓ -->
+<div class="moverlay" id="mreg"><div class="modal"><div class="mh"><h3>📝 REGISZTRÁCIÓ</h3><button class="mc" onclick="closeM('mreg')">✕</button></div>
+<div class="dform" id="mregb">
+  <p style="font-size:.82rem;color:var(--gray);margin-bottom:14px">A regisztráció elküldés után adminisztrátori jóváhagyásra vár.</p>
+  <div class="fg"><label>Teljes név *</label><input type="text" id="reg-name" placeholder="Pl. Nagy János"></div>
+  <div class="fg"><label>Jelvényszám *</label><input type="text" id="reg-badge" placeholder="Pl. BV-12345" style="text-transform:uppercase"></div>
+  <div class="fg"><label>Roblox felhasználónév</label><input type="text" id="reg-roblox" placeholder="Pl. Player123"></div>
+  <div class="fg"><label>Megjegyzés</label><textarea id="reg-note" rows="3" placeholder="Rövid megjegyzés / indoklás..." style="width:100%;padding:10px 12px;border:1.5px solid rgba(255,255,255,.12);border-radius:8px;font-family:inherit;font-size:.85rem;background:var(--navy3);color:var(--white);resize:vertical;outline:none"></textarea></div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn boutline" style="flex:1" onclick="closeM('mreg')">Mégse</button>
+    <button class="btn bgold" style="flex:2" id="reg-submit" onclick="submitRegistration()">✓ Regisztráció elküldése</button>
   </div>
 </div></div></div>
 
@@ -340,11 +357,11 @@ async function doLogin(){
     CU=o;
     document.getElementById('nname').textContent=o.name;
     document.getElementById('nrank').textContent=o.rank;
-    if(isAdmin(o.rank,o)){document.getElementById('admt').style.display='block';document.getElementById('noff').style.display='flex';document.getElementById('nrob').style.display='flex';}
+    if(isAdmin(o.rank,o)){document.getElementById('admt').style.display='block';document.getElementById('noff').style.display='flex';document.getElementById('nreg').style.display='flex';document.getElementById('nrob').style.display='flex';}
     showS('sa');nav('dashboard');
   }catch(e){err.textContent='Hiba: '+e.message;err.style.display='block';btn.disabled=false;btn.textContent='🔑 Bejelentkezés';}
 }
-function doLogout(){CU=null;document.getElementById('ln').value='';document.getElementById('lb').value='';document.getElementById('lerror').style.display='none';document.getElementById('lbtn').disabled=false;document.getElementById('lbtn').textContent='🔑 Bejelentkezés';['admt','noff','nrob'].forEach(id=>document.getElementById(id).style.display='none');showS('slo');}
+function doLogout(){CU=null;document.getElementById('ln').value='';document.getElementById('lb').value='';document.getElementById('lerror').style.display='none';document.getElementById('lbtn').disabled=false;document.getElementById('lbtn').textContent='🔑 Bejelentkezés';['admt','noff','nreg','nrob'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});showS('slo');}
 
 // ── NAV ──
 function nav(page){CP=page;CF='all';_it=[];document.querySelectorAll('.sbi').forEach(e=>e.classList.toggle('active',e.dataset.page===page));closeSB();rPage(page);}
@@ -354,6 +371,7 @@ async function rPage(page){
     if(page==='dashboard')c.innerHTML=await rDash();
     else if(PC[page])c.innerHTML=await rList(page);
     else if(page==='officers')c.innerHTML=await rOff();
+    else if(page==='registrations')c.innerHTML=await rRegs();
     else if(page==='roblox')c.innerHTML=await rRob();
   }catch(e){c.innerHTML=`<div class="empty"><div class="ei">⚠️</div><p>Hiba: ${esc(e.message)}</p></div>`;}
 }
@@ -780,6 +798,144 @@ async function saveBulk(){
     nav('officers');
   }catch(e){toast('Hiba: '+e.message,'error');btn.disabled=false;btn.textContent='✓ Frissítés';}
 }
+
+
+// ── REGISZTRÁCIÓK ──
+async function submitRegistration(){
+  const name=document.getElementById('reg-name').value.trim();
+  const badge=document.getElementById('reg-badge').value.trim().toUpperCase();
+  const roblox=document.getElementById('reg-roblox').value.trim();
+  const note=document.getElementById('reg-note').value.trim();
+  const btn=document.getElementById('reg-submit');
+
+  if(!name||!badge){toast('A név és a jelvényszám kötelező!','error');return;}
+
+  btn.disabled=true;btn.textContent='Küldés...';
+  try{
+    const [offs,regs]=await Promise.all([
+      fsQ('officers').catch(()=>[]),
+      fsQ('registrations').catch(()=>[])
+    ]);
+
+    if(offs.some(o=>String(o.badge||'').toUpperCase()===badge&&(o.active==='true'||o.active===true))){
+      toast('Ezzel a jelvényszámmal már van aktív felhasználó!','error');
+      btn.disabled=false;btn.textContent='✓ Regisztráció elküldése';
+      return;
+    }
+
+    if(regs.some(r=>String(r.badge||'').toUpperCase()===badge&&(r.status||'pending')==='pending')){
+      toast('Ehhez a jelvényszámhoz már van függőben lévő regisztráció!','error');
+      btn.disabled=false;btn.textContent='✓ Regisztráció elküldése';
+      return;
+    }
+
+    await fsA('registrations',{
+      name,badge,roblox,note,
+      status:'pending',
+      createdAt:new Date().toISOString()
+    });
+
+    ['reg-name','reg-badge','reg-roblox','reg-note'].forEach(id=>document.getElementById(id).value='');
+    closeM('mreg');
+    toast('Regisztráció elküldve! Admin jóváhagyásra vár.','success');
+  }catch(e){
+    toast('Hiba: '+e.message,'error');
+  }
+  btn.disabled=false;btn.textContent='✓ Regisztráció elküldése';
+}
+
+async function rRegs(){
+  if(!isAdmin(CU.rank,CU))return`<p style="color:var(--danger);padding:20px">Hozzáférés megtagadva.</p>`;
+  const regs=await fsQ('registrations').catch(()=>[]);
+  regs.sort((a,b)=>{
+    const ap=(a.status||'pending')==='pending'?0:1;
+    const bp=(b.status||'pending')==='pending'?0:1;
+    return ap-bp || new Date(b.createdAt||0)-new Date(a.createdAt||0);
+  });
+
+  const pending=regs.filter(r=>(r.status||'pending')==='pending').length;
+  return`<div class="ph"><div><h2>📝 REGISZTRÁCIÓK</h2><p>${pending} függőben / ${regs.length} összes</p></div></div>
+  <div class="panel">
+    ${regs.length===0?empty('Nincs beadott regisztráció.'):regs.map(r=>rRegCard(r)).join('')}
+  </div>`;
+}
+
+function rRegCard(r){
+  const st=r.status||'pending';
+  const badge=esc(String(r.badge||'').toUpperCase());
+  const id=esc(r._id||r.id||'');
+  const pending=st==='pending';
+  return`<div class="rc" style="cursor:default">
+    <div class="rch">
+      <div class="rct">${esc(r.name||'Névtelen')}</div>
+      <span class="sb-${st==='accepted'?'closed':st==='rejected'?'closed':'pending'}">${st==='accepted'?'Elfogadva':st==='rejected'?'Elutasítva':'Függőben'}</span>
+    </div>
+    <div class="rcm">
+      <span>🎖️ ${badge}</span>
+      ${r.roblox?`<span>🎮 ${esc(r.roblox)}</span>`:''}
+      <span>🕐 ${fd(r.createdAt)}</span>
+    </div>
+    ${r.note?`<div class="rcp">${esc(r.note)}</div>`:''}
+    ${pending?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <button class="btn bgold" onclick="acceptReg('${id}')">✓ Elfogadás</button>
+      <button class="btn boutline" onclick="rejectReg('${id}')">✕ Elutasítás</button>
+    </div>`:`<div class="rcm" style="margin-top:8px"><span>👤 ${esc(r.reviewedBy||'')}</span><span>🕐 ${fd(r.reviewedAt)}</span></div>`}
+  </div>`;
+}
+
+async function acceptReg(id){
+  if(!isAdmin(CU.rank,CU)){toast('Nincs jogosultságod!','error');return;}
+  const reg=await fsG('registrations',id);
+  if(!reg||!reg.name||!reg.badge){toast('A regisztráció nem található.','error');return;}
+  if((reg.status||'pending')!=='pending'){toast('Ez a regisztráció már el lett bírálva.','info');nav('registrations');return;}
+
+  const badge=String(reg.badge||'').toUpperCase();
+  const offs=await fsQ('officers').catch(()=>[]);
+  if(offs.some(o=>String(o.badge||'').toUpperCase()===badge&&(o.active==='true'||o.active===true))){
+    toast('Ezzel a jelvényszámmal már van aktív felhasználó!','error');
+    return;
+  }
+
+  if(!confirm(`Elfogadod a regisztrációt?\n\n${reg.name} (${badge})`))return;
+
+  await fsA('officers',{
+    name:reg.name,
+    badge:badge,
+    rank:'Őrmester',
+    active:'true',
+    dbAdmin:'false',
+    roblox:reg.roblox||'',
+    note:reg.note||'',
+    createdAt:new Date().toISOString()
+  });
+
+  await fsU('registrations',id,{
+    status:'accepted',
+    reviewedBy:CU.name,
+    reviewedAt:new Date().toISOString()
+  });
+
+  toast('Regisztráció elfogadva, rendőr létrehozva.','success');
+  nav('registrations');
+}
+
+async function rejectReg(id){
+  if(!isAdmin(CU.rank,CU)){toast('Nincs jogosultságod!','error');return;}
+  const reg=await fsG('registrations',id);
+  if(!reg){toast('A regisztráció nem található.','error');return;}
+  if((reg.status||'pending')!=='pending'){toast('Ez a regisztráció már el lett bírálva.','info');nav('registrations');return;}
+  if(!confirm(`Elutasítod a regisztrációt?\n\n${reg.name||''} (${reg.badge||''})`))return;
+
+  await fsU('registrations',id,{
+    status:'rejected',
+    reviewedBy:CU.name,
+    reviewedAt:new Date().toISOString()
+  });
+
+  toast('Regisztráció elutasítva.','info');
+  nav('registrations');
+}
+
 
 // ── ROBLOX ──
 async function rRob(){
