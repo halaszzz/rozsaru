@@ -156,3 +156,49 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);mi
   .sgrid{grid-template-columns:repeat(2,1fr)}
   .nuser .uname{display:none}
 }
+
+/* REGISZTRÁCIÓ STÁTUSZOK */
+.reg-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:4px 11px;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:700;
+  line-height:1;
+  border:1px solid transparent;
+  white-space:nowrap;
+}
+
+.reg-status-accepted{
+  background:rgba(26,118,74,.18);
+  color:#52be80;
+  border-color:rgba(82,190,128,.55);
+  box-shadow:0 0 0 1px rgba(82,190,128,.08),0 0 14px rgba(82,190,128,.10);
+}
+
+.reg-status-rejected{
+  background:rgba(231,76,60,.16);
+  color:#ff8a80;
+  border-color:rgba(231,76,60,.58);
+  box-shadow:0 0 0 1px rgba(231,76,60,.08),0 0 14px rgba(231,76,60,.10);
+}
+
+.reg-status-pending{
+  background:rgba(243,156,18,.16);
+  color:#f5b041;
+  border-color:rgba(243,156,18,.45);
+}
+
+.reg-card-accepted{
+  border-left-color:#52be80!important;
+}
+
+.reg-card-rejected{
+  border-left-color:#e74c3c!important;
+}
+
+.reg-card-pending{
+  border-left-color:#f39c12!important;
+}

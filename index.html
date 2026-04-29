@@ -865,10 +865,13 @@ function rRegCard(r){
   const badge=esc(String(r.badge||'').toUpperCase());
   const id=esc(r._id||r.id||'');
   const pending=st==='pending';
-  return`<div class="rc" style="cursor:default">
+  const statusClass=st==='accepted'?'reg-status-accepted':st==='rejected'?'reg-status-rejected':'reg-status-pending';
+  const cardClass=st==='accepted'?'reg-card-accepted':st==='rejected'?'reg-card-rejected':'reg-card-pending';
+  const statusText=st==='accepted'?'Elfogadva':st==='rejected'?'Elutasítva':'Függőben';
+  return`<div class="rc reg-card ${cardClass}" style="cursor:default">
     <div class="rch">
       <div class="rct">${esc(r.name||'Névtelen')}</div>
-      <span class="sb-${st==='accepted'?'closed':st==='rejected'?'closed':'pending'}">${st==='accepted'?'Elfogadva':st==='rejected'?'Elutasítva':'Függőben'}</span>
+      <span class="reg-status ${statusClass}">${statusText}</span>
     </div>
     <div class="rcm">
       <span>🎖️ ${badge}</span>
