@@ -508,60 +508,116 @@ async function rDash(){
 }
 
 // ── LIST ──
+function getListItems(col){
+  const st = LIST_STATE[col];
+  let x = [...st.items];
+
+  if(st.filter === 'open') x = x.filter(i => (i.status || 'open') === 'open');
+  if(st.filter === 'closed') x = x.filter(i => i.status === 'closed');
+  if(st.filter === 'mine') x = x.filter(i => i.authorId === CU._id);
+
+  if(st.search){
+    const q = st.search.toLowerCase();
+    x = x.filter(i =>
+      String(i.title || '').toLowerCase().includes(q) ||
+      String(i.suspect || '').toLowerCase().includes(q) ||
+      String(i.description || '').toLowerCase().includes(q)
+    );
+  }
+
+  return x;
+}
+
 async function rList(col){
-  const items = await fsQ(col);
+  _it = await fsQ(col);
 
   LIST_STATE[col] = {
-    items,
+    items: _it,
     filter: 'all',
     search: '',
     limit: PAGE_SIZE
   };
 
-  const firstBatch = items.slice(0, PAGE_SIZE);
-
-  setTimeout(()=>renderList(col), 0);
-
   return `<div class="ph">
-    <div><h2>${PC[col].l}</h2><p id="cnt-${col}">${items.length} / ${items.length} bejegyzés</p></div>
+    <div><h2>${PC[col].l}</h2><p id="cnt-${col}">${_it.length} bejegyzés</p></div>
     <button class="btn bgold" onclick="openN('${col}')">＋ Új bejegyzés</button>
   </div>
 
   <div class="sbar">
     <span>🔍</span>
-    <input type="text" placeholder="Keresés..." oninput="debouncedListSearch('${col}', this.value)">
+    <input type="text" placeholder="Keresés..." oninput="fCards(this.value,'${col}')">
   </div>
 
   <div class="ftabs">
-    <button class="ft active" onclick="setFastFilter(this,'all','${col}')">Összes</button>
-    <button class="ft" onclick="setFastFilter(this,'open','${col}')">Nyitott</button>
-    <button class="ft" onclick="setFastFilter(this,'closed','${col}')">Lezárt</button>
-    <button class="ft" onclick="setFastFilter(this,'mine','${col}')">Saját</button>
+    <button class="ft active" onclick="sFilter(this,'all','${col}')">Összes</button>
+    <button class="ft" onclick="sFilter(this,'open','${col}')">Nyitott</button>
+    <button class="ft" onclick="sFilter(this,'closed','${col}')">Lezárt</button>
+    <button class="ft" onclick="sFilter(this,'mine','${col}')">Saját</button>
   </div>
 
-  <div id="cl-${col}">
-    ${firstBatch.length ? bCards(firstBatch, col, 'all', '') : empty('Nincs bejegyzés.')}
-  </div>
+  <div id="cl-${col}">${bCards(col)}</div>
 
   <div style="display:flex;justify-content:center;margin-top:14px">
-    <button id="more-${col}" class="btn bnavy" onclick="loadMore('${col}')" style="${items.length > PAGE_SIZE ? '' : 'display:none'}">Továbbiak betöltése</button>
+    <button id="more-${col}" class="btn bnavy" onclick="loadMore('${col}')">Továbbiak betöltése</button>
   </div>`;
 }
-function bCards(it,col,f,s){
-  let x=[...it];
-  if(f==='open')x=x.filter(i=>(i.status||'open')==='open');
-  if(f==='closed')x=x.filter(i=>i.status==='closed');
-  if(f==='mine')x=x.filter(i=>i.authorId===CU._id);
-  if(s)x=x.filter(i=>JSON.stringify(i).toLowerCase().includes(s.toLowerCase()));
-  if(!x.length)return empty('Nincs megjeleníthető bejegyzés.');
-  return x.map(i=>`<div class="rc" data-col="${col}" onclick="openE('${col}','${esc(i._id)}')">
-    <div class="rch"><div class="rct">${esc(i.title||'Cím nélkül')}</div><span class="sb-${i.status||'open'}">${slabel(i.status)}</span></div>
-    <div class="rcm"><span>👤 ${esc(i.author||'')}</span><span class="rb rb-${rc(i.authorRank)}">${esc(i.authorRank||'')}</span><span>🕐 ${fd(i.createdAt)}</span>${i.unit?`<span class="ub">${esc(i.unit)}</span>`:''}</div>
-    ${i.description?`<div class="rcp">${esc(i.description)}</div>`:''}
+
+function bCards(col){
+  const st = LIST_STATE[col];
+  let x = getListItems(col);
+  const visible = x.slice(0, st.limit);
+
+  const cnt = document.getElementById('cnt-' + col);
+  if(cnt) cnt.textContent = `${visible.length} / ${x.length} megjelenítve`;
+
+  const more = document.getElementById('more-' + col);
+  if(more) more.style.display = x.length > st.limit ? 'inline-flex' : 'none';
+
+  if(!visible.length) return empty('Nincs megjeleníthető bejegyzés.');
+
+  return visible.map(i => `<div class="rc" data-col="${col}" onclick="openE('${col}','${esc(i._id || i.id)}')">
+    <div class="rch">
+      <div class="rct">${esc(i.title || 'Cím nélkül')}</div>
+      <span class="sb-${i.status || 'open'}">${slabel(i.status)}</span>
+    </div>
+    <div class="rcm">
+      <span>👤 ${esc(i.author || '')}</span>
+      <span class="rb rb-${rc(i.authorRank)}">${esc(i.authorRank || '')}</span>
+      <span>🕐 ${fd(i.createdAt)}</span>
+      ${i.unit ? `<span class="ub">${esc(i.unit)}</span>` : ''}
+    </div>
+    ${i.description ? `<div class="rcp">${esc(i.description)}</div>` : ''}
   </div>`).join('');
 }
-function sFilter(el,f,col){document.querySelectorAll('.ft').forEach(t=>t.classList.remove('active'));el.classList.add('active');CF=f;const e=document.getElementById('cl-'+col);if(e)e.innerHTML=bCards(_it,col,f,'');}
-function fCards(v,col){const e=document.getElementById('cl-'+col);if(e)e.innerHTML=bCards(_it,col,CF,v);}
+
+function sFilter(el,f,col){
+  el.parentElement.querySelectorAll('.ft').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  LIST_STATE[col].filter = f;
+  LIST_STATE[col].limit = PAGE_SIZE;
+
+  const e = document.getElementById('cl-' + col);
+  if(e) e.innerHTML = bCards(col);
+}
+
+let searchTimer;
+function fCards(v,col){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    LIST_STATE[col].search = v;
+    LIST_STATE[col].limit = PAGE_SIZE;
+
+    const e = document.getElementById('cl-' + col);
+    if(e) e.innerHTML = bCards(col);
+  }, 180);
+}
+
+function loadMore(col){
+  LIST_STATE[col].limit += PAGE_SIZE;
+  const e = document.getElementById('cl-' + col);
+  if(e) e.innerHTML = bCards(col);
+}
 
 // ── NEW ENTRY ──
 function openN(col){
