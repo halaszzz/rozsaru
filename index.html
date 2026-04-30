@@ -862,10 +862,13 @@ async function openOM(id){
   openM('mo');
 }
 async function saveOfficer(){
-  const name=document.getElementById('on').value.trim();const badge=document.getElementById('ob').value.trim().toUpperCase();
+  const name=document.getElementById('on').value.trim();
+  const badge = String(document.getElementById('ob').value || '').trim().toUpperCase();
   if(!name||!badge){toast('Töltsd ki a kötelező mezőket!','error');return;}
   const allOffs=await fsQ('officers');
-  const ex=allOffs.filter(o=>o.badge&&o.badge.toUpperCase()===badge);
+  const ex = allOffs.filter(o =>
+  o.badge && String(o.badge).toUpperCase() === badge
+);
   if(ex.length){toast('Ez a jelvényszám már foglalt!','error');return;}
   const btn=document.getElementById('osb');btn.disabled=true;btn.textContent='Mentés...';
   const data={name,badge,rank:document.getElementById('or').value,'beosztas':document.getElementById('ob2').value,
