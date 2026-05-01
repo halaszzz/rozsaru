@@ -401,7 +401,7 @@ async function rDash(){
     ${recent.length===0?empty('Még nincs bejegyzés.'):recent.slice(0,5).map(r=>`
     <div class="rc" data-col="${esc(r._col)}" onclick="openE('${esc(r._col)}','${esc(r._id)}')">
       <div class="rch"><div class="rct">${esc(r.title||'Névtelen')}</div><span class="sb-${r.status||'open'}">${slabel(r.status)}</span></div>
-      <div class="rcm"><span>👤 ${esc(r.author||'')}</span><span class="rb rb-${rc(r.authorRank)}">${esc(r.authorRank||'')}</span><span>🕐 ${fd(r.createdAt)}</span>${r.unit?`<span class="ub">${esc(r.unit)}</span>`:''}</div>
+      <div class="rcm"><span>👤 ${esc(r.author||'Ismeretlen')}</span><span class="rb rb-${rc(r.authorRank)}">${esc(r.authorRank||'Rendfokozat nélkül')}</span><span>🕐 ${fd(r.createdAt)}</span>${r.unit?`<span class="ub">${esc(r.unit)}</span>`:''}</div>
     </div>`).join('')}
   </div>
   <div class="panel"><div class="ptitle">⚡ Gyorsmenü</div><div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -431,7 +431,7 @@ function bCards(it,col,f,s){
   if(!x.length)return empty('Nincs megjeleníthető bejegyzés.');
   return x.map(i=>`<div class="rc" data-col="${col}" onclick="openE('${col}','${esc(i._id)}')">
     <div class="rch"><div class="rct">${esc(i.title||'Cím nélkül')}</div><span class="sb-${i.status||'open'}">${slabel(i.status)}</span></div>
-    <div class="rcm"><span>👤 ${esc(i.author||'')}</span><span class="rb rb-${rc(i.authorRank)}">${esc(i.authorRank||'')}</span><span>🕐 ${fd(i.createdAt)}</span>${i.unit?`<span class="ub">${esc(i.unit)}</span>`:''}</div>
+    <div class="rcm"><span>👤 ${esc(i.author||'Ismeretlen')}</span><span class="rb rb-${rc(i.authorRank)}">${esc(i.authorRank||'Rendfokozat nélkül')}</span><span>🕐 ${fd(i.createdAt)}</span>${i.unit?`<span class="ub">${esc(i.unit)}</span>`:''}</div>
     ${i.description?`<div class="rcp">${esc(i.description)}</div>`:''}
   </div>`).join('');
 }
@@ -592,7 +592,14 @@ async function openE(col,id){
   const cd = canDel(CU.rank,CU);
   const cc = canClose(CU.rank,CU) || ce;
   const FL=[['title','Cím'],['description','Leírás'],['suspect','Gyanúsított'],['person','Érintett személy'],['amount','Összeg'],['reason','Indoklás'],['participants','Résztvevők'],['shiftStart','Szolgálat kezdete'],['shiftEnd','Szolgálat vége'],['itemName','Tárgy neve'],['quantity','Mennyiség'],['action','Művelet'],['vehicleId','Jármű'],['fuelType','Típus'],['requestType','Kérés típusa'],['currentRank','Jelenlegi rendfokozat'],['requestedRank','Igényelt rendfokozat'],['dateFrom','Kezdő dátum'],['dateTo','Záró dátum']];
-  let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap"><span class="rb rb-${rc(item.authorRank)}">${esc(item.authorRank||'')}</span><span style="font-size:.88rem;color:var(--gray)">👤 ${esc(item.author||'')}</span>${item.unit?`<span class="ub">${esc(item.unit)}</span>`:''}<span class="sb-${item.status||'open'}">${slabel(item.status)}</span></div>`;
+  let h=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+    <span class="rb rb-${rc(item.authorRank)}">${esc(item.authorRank||'Rendfokozat nélkül')}</span>
+    <span style="font-size:.88rem;color:var(--gray)">👤 ${esc(item.author||'Ismeretlen rögzítő')}</span>
+    ${item.unit?`<span class="ub">${esc(item.unit)}</span>`:''}
+    <span class="sb-${item.status||'open'}">${slabel(item.status)}</span>
+  </div>
+  <div class="df"><label>Rögzítette</label><div class="val">👤 ${esc(item.author||'Ismeretlen')}</div></div>
+  <div class="df"><label>Rögzítő rendfokozata</label><div class="val">${esc(item.authorRank||'Ismeretlen')}</div></div>`;
   FL.forEach(([k,l])=>{if(item[k]&&k!=='images')h+=`<div class="df"><label>${l}</label><div class="val">${esc(String(item[k]))}</div></div>`;});
   h+=`<div class="df"><label>Létrehozva</label><div class="val">${fd(item.createdAt)}</div></div>`;
   if(item.editedBy)h+=`<div class="df"><label>Módosítva</label><div class="val">${fd(item.updatedAt)} — ${esc(item.editedBy)}</div></div>`;
