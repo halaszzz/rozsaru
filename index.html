@@ -713,6 +713,10 @@ async function openOM(id){
 }
 async function saveOfficer(){
   const name=document.getElementById('on').value.trim();const badge=document.getElementById('ob').value.trim().toUpperCase();
+  if(!/^[A-Z0-9-]+$/.test(badge)){
+    toast('Csak betű, szám és kötőjel engedélyezett!','error');
+    return;
+  }
   if(!name||!badge){toast('Töltsd ki a kötelező mezőket!','error');return;}
   const allOffs=await fsQ('officers');
   const ex=allOffs.filter(o=>o.badge&&o.badge.toUpperCase()===badge);
