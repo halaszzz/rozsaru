@@ -33,7 +33,6 @@
     <div class="fg"><label>Felhasználónév</label><input type="text" id="ln" placeholder="Pl. Nagy János" autocomplete="off"></div>
     <div class="fg"><label>Jelvényszám</label><input type="password" id="lb" placeholder="Pl. BV-12345" autocomplete="off"></div>
     <button class="bp" id="lbtn" onclick="doLogin()">🔑 Bejelentkezés</button>
-    <button class="bp" type="button" onclick="openM('mreg')" style="margin-top:10px;background:transparent;color:var(--navy);border:1.5px solid rgba(12,29,54,.25);box-shadow:none">📝 Regisztráció</button>
     <p class="lnote">Hozzáférésért fordulj a Fő Adatbázis Ügyintézőhöz.</p>
   </div>
 </div>
@@ -67,7 +66,6 @@
       <div class="sbi" data-page="tanking" onclick="nav('tanking')"><span class="ic">🚗</span> Tankolás-szerelés</div>
       <div class="sbt" id="admt" style="display:none">Adminisztráció</div>
       <div class="sbi" id="noff" data-page="officers" onclick="nav('officers')" style="display:none"><span class="ic">👥</span> Személyügyi-nyilvántartás</div>
-      <div class="sbi" id="nreg" data-page="registrations" onclick="nav('registrations')" style="display:none"><span class="ic">📝</span> Regisztrációk</div>
       <div class="sbi" id="nrob" data-page="roblox" onclick="nav('roblox')" style="display:none"><span class="ic">🎮</span> Roblox-nevek</div>
     </div>
     <div class="cont" id="mc"></div>
@@ -369,11 +367,11 @@ async function doLogin(){
     CU=o;
     document.getElementById('nname').textContent=o.name;
     document.getElementById('nrank').textContent=o.rank;
-    if(isAdmin(o.rank,o)){document.getElementById('admt').style.display='block';document.getElementById('noff').style.display='flex';document.getElementById('nreg').style.display='flex';document.getElementById('nrob').style.display='flex';}
+    if(isAdmin(o.rank,o)){document.getElementById('admt').style.display='block';document.getElementById('noff').style.display='flex';document.getElementById('nrob').style.display='flex';}
     showS('sa');nav('dashboard');
   }catch(e){err.textContent='Hiba: '+e.message;err.style.display='block';btn.disabled=false;btn.textContent='🔑 Bejelentkezés';}
 }
-function doLogout(){CU=null;document.getElementById('ln').value='';document.getElementById('lb').value='';document.getElementById('lerror').style.display='none';document.getElementById('lbtn').disabled=false;document.getElementById('lbtn').textContent='🔑 Bejelentkezés';['admt','noff','nreg','nrob'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});showS('slo');}
+function doLogout(){CU=null;document.getElementById('ln').value='';document.getElementById('lb').value='';document.getElementById('lerror').style.display='none';document.getElementById('lbtn').disabled=false;document.getElementById('lbtn').textContent='🔑 Bejelentkezés';['admt','noff','nrob'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});showS('slo');}
 
 // ── NAV ──
 function nav(page){CP=page;CF='all';_it=[];document.querySelectorAll('.sbi').forEach(e=>e.classList.toggle('active',e.dataset.page===page));closeSB();rPage(page);}
