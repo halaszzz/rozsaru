@@ -209,7 +209,7 @@ async function savePwChange(){
   if(pw!==pw2){toast('A két jelszó nem egyezik!','error');return;}
   if(pw.length<4){toast('Minimum 4 karakter!','error');return;}
   const allOffs=await fsQ('officers');
-  const target=allOffs.find(o=>o.badge&&o.badge.toUpperCase()===badge);
+  const target=allOffs.find(o=>o.badge&&String(o.badge).toUpperCase()===badge);
   if(!target){toast('Nem található ilyen jelvényszám!','error');return;}
   try{await fsU('officers',target._id,{password:pw});toast('Jelszó megváltoztatva: '+target.name,'success');closeM('mpw');}
   catch(e){toast('Hiba: '+e.message,'error');}
@@ -362,7 +362,7 @@ async function doLogin(){
   btn.disabled=true;btn.textContent='⏳ Ellenőrzés...';
   try{
     const officers=await fsQ('officers',[mf('badge','EQUAL',badge),mf('active','EQUAL','true')]);
-    const o=officers.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    const o=officers.find(x=>String(x.name||'').toLowerCase()===name.toLowerCase());
     if(!o){err.textContent='Hibás felhasználónév vagy jelvényszám!';err.style.display='block';btn.disabled=false;btn.textContent='🔑 Bejelentkezés';return;}
     CU=o;
     document.getElementById('nname').textContent=o.name;
@@ -717,7 +717,7 @@ async function saveOfficer(){
   }
   if(!name||!badge){toast('Töltsd ki a kötelező mezőket!','error');return;}
   const allOffs=await fsQ('officers');
-  const ex=allOffs.filter(o=>o.badge&&o.badge.toUpperCase()===badge);
+  const ex=allOffs.filter(o=>o.badge&&String(o.badge).toUpperCase()===badge);
   if(ex.length){toast('Ez a jelvényszám már foglalt!','error');return;}
   const btn=document.getElementById('osb');btn.disabled=true;btn.textContent='Mentés...';
   const rank=document.getElementById('or').value;
